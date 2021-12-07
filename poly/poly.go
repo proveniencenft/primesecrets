@@ -6,17 +6,9 @@ import (
 	"math/big"
 )
 
-var field *Field
-
-func SetField(prime *big.Int) error {
-	var err error
-	field = &Field{prime}
-	return err
-}
-
 type Poly struct {
 	Coefficients []Element
-	Field        Field
+	Field        *Field
 }
 
 func (p *Poly) SplitSecret(nshares int) ([]Share, error) {
@@ -41,10 +33,10 @@ func (f *Field) NewPoly(deg int, zVal *big.Int) (*Poly, error) {
 	}
 	p := new(Poly)
 	p.Coefficients = make([]Element, deg)
-	p.Coefficients[0] = *field.NewElement(zVal)
+	p.Coefficients[0] = *f.NewElement(zVal)
 	for deg > 1 {
 
-		e, err := field.RandomElement(rand.Reader)
+		e, err := f.RandomElement(rand.Reader)
 		if err != nil {
 			return nil, err
 		}
@@ -55,7 +47,7 @@ func (f *Field) NewPoly(deg int, zVal *big.Int) (*Poly, error) {
 		p.Coefficients[deg] = *e
 
 	}
-	p.Field = *field
+	p.Field = f
 	return p, nil
 
 }
