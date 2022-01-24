@@ -10,9 +10,9 @@ type gfpoly struct {
 }
 
 type Share struct {
-	pt  byte
-	val []byte
-	deg byte
+	Point  byte
+	Value  []byte
+	Degree byte
 }
 
 func (p *gfpoly) eval(pt byte) byte {
@@ -43,14 +43,14 @@ func SplitBytes(tosplit []byte, nshares, threshold int) ([]Share, error) {
 	}
 	shares := make([]Share, nshares)
 	for i := 0; i < nshares; i++ {
-		shares[i].pt = byte(i + 1)
-		shares[i].deg = byte(threshold - 1)
+		shares[i].Point = byte(i + 1)
+		shares[i].Degree = byte(threshold - 1)
 	}
 	for j := range tosplit {
 		c := newgfpoly(tosplit[j], threshold-1)
 		for i := 0; i < nshares; i++ {
 			//vi := c.eval(byte(i + 1))
-			shares[i].val = append(shares[i].val, c.eval(byte(i+1)))
+			shares[i].Value = append(shares[i].Value, c.eval(byte(i+1)))
 		}
 
 	}
@@ -58,22 +58,22 @@ func SplitBytes(tosplit []byte, nshares, threshold int) ([]Share, error) {
 }
 
 func RecoverBytes(shares []Share) ([]byte, error) {
-	deg := shares[0].deg
-	leng := len(shares[0].val)
+	deg := shares[0].Degree
+	leng := len(shares[0].Value)
 
 	//deduplicate shares
 	dup := map[byte]bool{}
 	unique := []Share{}
 	for _, s := range shares {
-		if dup[s.pt] {
+		if dup[s.Point] {
 			continue
 		}
-		if s.deg != deg || len(s.val) != leng {
+		if s.Degree != deg || len(s.Value) != leng {
 
 			return nil, fmt.Errorf("Inconsistent shares")
 		}
 		unique = append(unique, s)
-		dup[s.pt] = true
+		dup[s.Point] = true
 
 	}
 	ideg := int(deg)
@@ -82,16 +82,16 @@ func RecoverBytes(shares []Share) ([]byte, error) {
 		return nil, fmt.Errorf("Not enough shares")
 	}
 	result := []byte{}
-	for k := 0; k < len(unique[0].val); k++ {
+	for k := 0; k < len(unique[0].Value); k++ {
 		v := byte(0)
 		for i := 0; i <= int(deg); i++ {
-			a := shares[i].val[k]
+			a := shares[i].Value[k]
 			//fmt.Println("a:", a)
 			for j := 0; j <= ideg; j++ {
 				if i == j {
 					continue
 				}
-				a = Mul(a, Mul(shares[j].pt, Inv(shares[i].pt^shares[j].pt)))
+				a = Mul(a, Mul(shares[j].Point, Inv(shares[i].Point^shares[j].Point)))
 
 			}
 			//fmt.Println("L:", a)
