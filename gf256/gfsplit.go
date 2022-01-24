@@ -9,7 +9,7 @@ type gfpoly struct {
 	Coeff []byte
 }
 
-type share struct {
+type Share struct {
 	pt  byte
 	val []byte
 	deg byte
@@ -37,11 +37,11 @@ func newgfpoly(zerovalue byte, degree int) *gfpoly {
 	return &gfpoly{c}
 }
 
-func SplitBytes(tosplit []byte, nshares, threshold int) ([]share, error) {
+func SplitBytes(tosplit []byte, nshares, threshold int) ([]Share, error) {
 	if nshares <= 0 || nshares > 254 || threshold > nshares {
 		fmt.Errorf("wrong No of shares or threshold")
 	}
-	shares := make([]share, nshares)
+	shares := make([]Share, nshares)
 	for i := 0; i < nshares; i++ {
 		shares[i].pt = byte(i + 1)
 		shares[i].deg = byte(threshold - 1)
@@ -57,13 +57,13 @@ func SplitBytes(tosplit []byte, nshares, threshold int) ([]share, error) {
 	return shares, nil
 }
 
-func RecoverBytes(shares []share) ([]byte, error) {
+func RecoverBytes(shares []Share) ([]byte, error) {
 	deg := shares[0].deg
 	leng := len(shares[0].val)
 
 	//deduplicate shares
 	dup := map[byte]bool{}
-	unique := []share{}
+	unique := []Share{}
 	for _, s := range shares {
 		if dup[s.pt] {
 			continue
