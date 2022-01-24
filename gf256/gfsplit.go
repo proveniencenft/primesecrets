@@ -37,7 +37,7 @@ func newgfpoly(zerovalue byte, degree int) *gfpoly {
 	return &gfpoly{c}
 }
 
-func Splitbytes(tosplit []byte, nshares, threshold int) []share {
+func SplitBytes(tosplit []byte, nshares, threshold int) []share {
 	if nshares <= 0 || nshares > 254 || threshold > nshares {
 		panic("wrong No of shares or threshold")
 	}
