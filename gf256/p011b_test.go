@@ -25,7 +25,7 @@ func TestMul(t *testing.T) {
 
 	secret := make([]byte, 4100)
 	rand.Read(secret)
-	sh := Splitbytes(secret, 4, 3)
+	sh, _ := SplitBytes(secret, 4, 3)
 	rec, err := RecoverBytes(sh[1:])
 	if err != nil {
 		t.Error(err)
