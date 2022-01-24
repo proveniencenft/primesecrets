@@ -8,8 +8,7 @@ import (
 
 func TestNewPoly(t *testing.T) {
 	n, _ := new(big.Int).SetString("73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001", 16)
-	SetField(n)
-	//SetField(big.NewInt(43))
+	field := &Field{n}
 
 	pol, err := field.NewPoly(15, big.NewInt(17000000042))
 
