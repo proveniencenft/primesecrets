@@ -20,7 +20,7 @@ func TestNewPoly(t *testing.T) {
 		fmt.Println(i, v.val)
 	}
 
-	shares, err := pol.SplitSecret(20)
+	shares, err := pol.GenerateShares(20)
 	if err != nil {
 		t.Error(err)
 	}

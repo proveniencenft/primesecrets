@@ -11,7 +11,7 @@ type Poly struct {
 	Field        *Field
 }
 
-func (p *Poly) SplitSecret(nshares int) ([]Share, error) {
+func (p *Poly) GenerateShares(nshares int) ([]Share, error) {
 	if nshares < len(p.Coefficients) {
 		return nil, fmt.Errorf("Not enough shares requested")
 	}
@@ -20,10 +20,22 @@ func (p *Poly) SplitSecret(nshares int) ([]Share, error) {
 		shares[i].Point = big.NewInt(int64(i + 1))
 		shares[i].Value = p.EvalAtInt(i + 1).val
 		shares[i].N = p.Field.N
-		shares[i].D = len(p.Coefficients)
+		shares[i].D = len(p.Coefficients) - 1
 	}
 	return shares, nil
 
+}
+
+func SplitBytes(sec []byte, n, t int, prime big.Int) ([]Share, error) {
+	f := &Field{&prime}
+	zv := new(big.Int)
+	zv.SetBytes(sec)
+	zv.Mod(zv, &prime)
+	pol, err := f.NewPoly(t-1, zv)
+	if err != nil {
+		return nil, err
+	}
+	return pol.GenerateShares(n)
 }
 
 //The field elements are assumed NOT to be in Montgomery form
@@ -32,9 +44,9 @@ func (f *Field) NewPoly(deg int, zVal *big.Int) (*Poly, error) {
 		return nil, fmt.Errorf("Poly degree out of range")
 	}
 	p := new(Poly)
-	p.Coefficients = make([]Element, deg)
+	p.Coefficients = make([]Element, deg+1)
 	p.Coefficients[0] = *f.NewElement(zVal)
-	for deg > 1 {
+	for deg > 0 {
 
 		e, err := f.RandomElement(rand.Reader)
 		if err != nil {
@@ -43,9 +55,9 @@ func (f *Field) NewPoly(deg int, zVal *big.Int) (*Poly, error) {
 		if e.val.Cmp(big.NewInt(0)) == 0 {
 			continue
 		}
-		deg -= 1
-		p.Coefficients[deg] = *e
 
+		p.Coefficients[deg] = *e
+		deg -= 1
 	}
 	p.Field = f
 	return p, nil
@@ -103,7 +115,7 @@ func Lagrange(shares []Share) (*big.Int, error) {
 
 	}
 
-	if len(sh) < D {
+	if len(sh) <= D {
 		return nil, fmt.Errorf("Not enough shares")
 	}
 

@@ -39,7 +39,7 @@ func newgfpoly(zerovalue byte, degree int) *gfpoly {
 
 func SplitBytes(tosplit []byte, nshares, threshold int) ([]Share, error) {
 	if nshares <= 0 || nshares > 254 || threshold > nshares {
-		fmt.Errorf("wrong No of shares or threshold")
+		return nil, fmt.Errorf("wrong No of shares or threshold")
 	}
 	shares := make([]Share, nshares)
 	for i := 0; i < nshares; i++ {

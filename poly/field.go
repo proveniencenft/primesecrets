@@ -1,7 +1,6 @@
 package poly
 
 import (
-	"fmt"
 	"io"
 	"math/big"
 )
@@ -17,7 +16,7 @@ type Element struct {
 
 func (e *Element) Mul(e2 *Element) *Element {
 	if e2.val == nil {
-		fmt.Println("BadBoy")
+		panic("Nil element in multiplication")
 	}
 	t := new(big.Int)
 	t.Mul(e.val, e2.val)
