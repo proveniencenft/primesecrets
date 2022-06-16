@@ -83,6 +83,8 @@ func (pol Poly) EvalAtInt(x int) *Element {
 
 }
 
+//A Share represents an evaluatio of a polynomial of degree D at Point with the resulting Value.
+//All calculations are over a prime field of N
 type Share struct {
 	Point *big.Int
 	Value *big.Int
